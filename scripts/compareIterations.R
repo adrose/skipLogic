@@ -3,34 +3,31 @@ library(foreach)
 library(doParallel)
 library(ggplot2)
 library(reshape2)
-nsim1 <- rep(1000,8)      # how many simulations?
-ne1 <- rep(1000,8)        # how many examinees per simulation?
-nitems1 <- rep(20,8)      # how many items (total)?
-probes1 <- c(rep(2,4), rep(6,4))       # how many items are probes?
-amin1 <- rep(0.5,8)       # minimum value for a
-amax1 <- rep(3.0,8)       # maximum value for a
-dminp1 <- rep(-3,8)       # minimum value for d (probes)
-dmaxp1 <- c(-2,-1,0,1,-2,-1,0,1)       # maximum value for d (probes)
-dmin1 <- rep(0,8)         # minimum value for d
-dmax1 <- rep(3,8)         # maximum value for d
-cor_crit1 <- rep(0.8,8)
+library(caret)
+# First identify all of our conditions
+probes <- c(2,4,6)
+amin <- c(0.3, 1.5)
+dmin <- c(-2, -1, 0, 1)
+dmin1 <- c(-2, -1, 0, 1)
+all.folds <- expand.grid(probes,amin,dmin,dmin1)
 
 
-for(i in 1:8){
-    nsim <- nsim1[i]      # how many simulations?
-    ne <- ne1[i]        # how many examinees per simulation?
+for(i in 1:dim(all.folds)[1]){
+    nsim <- 2000      # how many simulations?
+    ne <- 1000        # how many examinees per simulation?
     nitems <- 20      # how many items (total)?
-    probes <- probes1[i]       # how many items are probes?
-    amin <- 0.5       # minimum value for a
-    amax <- 3.0       # maximum value for a
-    dminp <- -3       # minimum value for d (probes)
-    dmaxp <- dmaxp1[i]       # maximum value for d (probes)
-    dmin <- 0         # minimum value for d
-    dmax <- 3         # maximum value for d
+    probes <- all.folds[i,1]       # how many items are probes?
+    amin <- all.folds[i,2]       # minimum value for a
+    if(amin==0.3){amax <- 1.5}   # maximum value for a
+    if(amin==1.5){amax <- 3.5}   # maximum value for a
+    dminp <- all.folds[i,3]       # minimum value for d (probes)
+    dmaxp <- dminp + 1       # maximum value for d (probes)
+    dmin <- all.folds[i,4]         # minimum value for d
+    dmax <- dmin + 1        # maximum value for d
     cor_crit <- 0.8   # true correlation between criterion and theta
     
     v <- sqrt((1/cor_crit^2)-1)  # convert cor_crit to variance of residuals
-    cl <- makeCluster(6)
+    cl <- makeCluster(8)
     registerDoParallel(cl)
     results <- foreach(z=seq(1,nsim), .combine=rbind) %dopar% {
         library(psych)
@@ -70,18 +67,19 @@ for(i in 1:8){
 
 # Now create a plot with the average corellation values from each of these output csv's
 outCorVals <- NULL
-for(i in 1:8){
-    nsim <- nsim1[i]      # how many simulations?
-    ne <- ne1[i]        # how many examinees per simulation?
+for(i in 1:dim(all.folds)[1]){
+    nsim <- 2000      # how many simulations?
+    ne <- 1000        # how many examinees per simulation?
     nitems <- 20      # how many items (total)?
-    probes <- probes1[i]       # how many items are probes?
-    amin <- 0.5       # minimum value for a
-    amax <- 3.0       # maximum value for a
-    dminp <- -3       # minimum value for d (probes)
-    dmaxp <- dmaxp1[i]       # maximum value for d (probes)
-    dmin <- 0         # minimum value for d
-    dmax <- 3         # maximum value for d
-    cor_crit <- 0.8   # true correlation between criterion and theta
+    probes <- all.folds[i,1]       # how many items are probes?
+    amin <- all.folds[i,2]       # minimum value for a
+    if(amin==0.3){amax <- 1.5}   # maximum value for a
+    if(amin==1.5){amax <- 3.5}   # maximum value for a
+    dminp <- all.folds[i,3]       # minimum value for d (probes)
+    dmaxp <- dminp + 1       # maximum value for d (probes)
+    dmin <- all.folds[i,4]         # minimum value for d
+    dmax <- dmin + 1        # maximum value for d
+    cor_crit <- 0.8  # true correlation between criterion and theta
     inputFile <- read.csv(paste("sims",nsim,ne,nitems,probes,amin,amax,dminp,dmaxp,dmin,dmax,"final.csv", sep='_'))
     outRow <- c(probes, dmaxp, mean(inputFile$IRT_no_SL),  mean(inputFile$IRT_after_SL))
     outCorVals <- rbind(outCorVals, outRow)
