@@ -16,4 +16,4 @@ mod1 <- mirt(data=ocd.data[,c(2:18)], 1, IRTpars=T)
 
 
 ## Now obtain our difficulty estimates
-outVals <- coef(mod1, irtPars=T)
+outVals <- coef(mod1, IRTpars=T)
