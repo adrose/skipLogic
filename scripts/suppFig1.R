@@ -1,7 +1,7 @@
 ## This script will be used to plot all of the main effects
 ## of skip logic
 ## It'll be a beast of a figure
-## FIrst load all library(s)
+## First load all library(s)
 library(psych)
 library(foreach)
 library(doParallel)
@@ -48,6 +48,16 @@ for(i in vals){
 
 ## now create the plot
 plotVals$val <- c(rep('Number of probe items', 3), rep("Probe item difficulties", 2), rep("Non-Probe item difficulties",2), rep("Thea Distribution", 2), rep("Item discrimination", 2))
+## Now modify the x axis labels
+plotVals$meanVals[4] <- '[-3 to -1]'
+plotVals$meanVals[5] <- '[-1 to 1]'
+plotVals$meanVals[6] <- '[-1 to 1]'
+plotVals$meanVals[7] <- '[1 to 3]'
+plotVals$meanVals[8] <- 'Normal'
+plotVals$meanVals[9] <- 'Skewed'
+plotVals$meanVals[10] <- '[0.3 to 1.5]'
+plotVals$meanVals[11] <- '[1.5 to 3.0]'
+
 
 ## Now create the plot
 outPlot <- ggplot(plotVals, aes(x=factor(meanVals), y=toPlot)) +
@@ -57,7 +67,8 @@ outPlot <- ggplot(plotVals, aes(x=factor(meanVals), y=toPlot)) +
   theme_bw() +
   facet_grid(.~val, space = "free_x", scales='free_x') +
   ylab("Bias Due to Skip-Logic") +
-  xlab("Conditions")
+  xlab("Conditions") +
+  theme(text=element_text(size=21))
 
 pdf("slSuppFig1.pdf")
 outPlot
