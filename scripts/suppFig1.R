@@ -47,7 +47,7 @@ for(i in vals){
 }
 
 ## now create the plot
-plotVals$val <- c(rep('Number of probe items', 3), rep("Probe item difficulties", 2), rep("Non-Probe item difficulties",2), rep("Thea Distribution", 2), rep("Item discrimination", 2))
+plotVals$val <- c(rep('Number of probe items', 3), rep("Screen item difficulties", 2), rep("Non-Screen item difficulties",2), rep("Theta Distribution", 2), rep("Item discrimination", 2))
 ## Now modify the x axis labels
 plotVals$meanVals[4] <- '[-3 to -1]'
 plotVals$meanVals[5] <- '[-1 to 1]'
